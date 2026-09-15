@@ -1,0 +1,76 @@
+[project]
+name = "fomc-research"
+version = "0.1.0"
+description = "FOMC Research Agent Demo using Google ADK — Multi-Platform Deployment"
+authors = [{ name = "Mike Styer", email = "styer@google.com" }]
+license = { text = "Apache License 2.0" }
+readme = "README.md"
+requires-python = ">=3.11"
+
+# Core dependencies — Agent Engine is now OPTIONAL (see [project.optional-dependencies])
+dependencies = [
+    "absl-py>=2.2.1",
+    "diff-match-patch>=20241021",
+    "google-adk>=1.31.0",
+    "google-cloud-bigquery>=3.30.0",
+    "google-genai>=1.5.0",
+    "pdfplumber>=0.11.5",
+    "pydantic>=2.10.6",
+    "python-dotenv>=1.1.0",
+    "requests>=2.32.3",
+    "tabulate>=0.9.0",
+    "scikit-learn>=1.6.1",
+]
+
+[project.optional-dependencies]
+# Vertex AI Agent Engine deployment (original method)
+agent-engine = [
+    "google-cloud-aiplatform[adk,agent-engines]>=1.93.0",
+]
+# HTTP API server for Cloud Run / Railway / Render / VPS
+serve = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.34.0",
+]
+# All extras
+all = [
+    "fomc-research[agent-engine,serve]",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.2",
+    "pytest-asyncio>=0.24.0",
+    "google-adk[eval]>=1.31.0",
+    "nest-asyncio>=1.6.0",
+]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+# Ignores function complication rule
+ignore = ["C901"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.ruff.lint.isort]
+# Categorizes the local package for correct import sorting
+known-first-party = ["fomc_research"]
+
+[tool.hatch.build.targets.wheel]
+# Ensures Hatchling finds the package folder correctly
+packages = ["fomc_research"]
+
+[tool.pytest.ini_options]
+pythonpath = "."
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.agent-starter-pack]
+example_question = "Analyze the most recent FOMC meeting and provide a summary of the key decisions and market implications."
+deployment_targets = ["cloud_run", "railway", "render", "vps", "agent_engine"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

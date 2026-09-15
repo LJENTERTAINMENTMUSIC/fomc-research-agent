@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+.venv/
+
+# Environment — NEVER commit .env (contains secrets)
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Cloudflare credentials (contains secret tunnel token)
+deployment/cloudflare/*.json
+
+# uv
+.uv/

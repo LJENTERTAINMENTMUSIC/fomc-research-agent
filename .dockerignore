@@ -1,0 +1,44 @@
+# Git
+.git/
+.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+.eggs/
+*.whl
+dist/
+build/
+
+# Environment
+.env
+.env.local
+.env.*
+!.env-example
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docs / images (not needed in container)
+*.webp
+*.svg
+README.md
+
+# Test / dev
+tests/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Lock file is intentionally NOT ignored (for reproducible builds)
+# uv.lock

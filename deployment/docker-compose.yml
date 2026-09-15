@@ -1,0 +1,60 @@
+# ==============================================================
+# FOMC Research Agent — VPS / Self-Hosted Deployment
+#
+# Usage:
+#   cd deployment
+#   docker-compose up -d
+#
+# Prerequisites:
+#   - Docker and Docker Compose installed
+#   - ../.env file configured with API keys
+# ==============================================================
+
+version: '3.8'
+
+services:
+  fomc-agent:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: fomc-research-agent
+    ports:
+      - "${PORT:-8080}:8080"
+    env_file:
+      - ../.env
+    environment:
+      - PORT=8080
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2.0'
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Optional: Nginx reverse proxy for production
+  # Uncomment to use with SSL / custom domain
+  #
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: fomc-nginx
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+  #     - ./certs:/etc/nginx/certs:ro
+  #   depends_on:
+  #     - fomc-agent
+  #   restart: unless-stopped

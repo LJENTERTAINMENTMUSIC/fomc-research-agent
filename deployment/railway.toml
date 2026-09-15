@@ -1,0 +1,18 @@
+# ==============================================================
+# FOMC Research Agent — Railway Deployment Configuration
+#
+# Railway auto-detects the Dockerfile and builds from it.
+# Set environment variables in the Railway dashboard.
+#
+# Docs: https://docs.railway.app/reference/config-as-code
+# ==============================================================
+
+[build]
+dockerfilePath = "Dockerfile"
+
+[deploy]
+healthcheckPath = "/api/health"
+healthcheckTimeout = 30
+startCommand = "python deployment/serve_cloudrun.py"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5

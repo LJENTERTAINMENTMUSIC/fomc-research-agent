@@ -1,0 +1,34 @@
+# ==============================================================
+# FOMC Research Agent — Render Blueprint
+# Free tier: permanent URL, auto-deploy from GitHub
+# URL format: https://fomc-research-agent.onrender.com
+#
+# Deploy steps:
+#   1. Push this repo to GitHub (public or private)
+#   2. Go to https://dashboard.render.com/new/blueprint
+#   3. Connect your GitHub repo
+#   4. Set GOOGLE_API_KEY in Render environment variables
+#   5. Click Deploy — done!
+#
+# Docs: https://docs.render.com/infrastructure-as-code
+# ==============================================================
+
+services:
+  - type: web
+    name: fomc-research-agent
+    runtime: docker
+    # Render looks for Dockerfile in the root dir by default
+    # If deploying from subfolder, set rootDir below
+    rootDir: fomc-research
+    dockerfilePath: ./Dockerfile
+    plan: free          # Free tier — sleeps after 15min inactivity, wakes on request
+    healthCheckPath: /api/health
+    envVars:
+      - key: PORT
+        value: "8080"
+      - key: GOOGLE_GENAI_USE_VERTEXAI
+        value: "0"      # API key mode — no GCP needed
+      - key: GOOGLE_GENAI_MODEL
+        value: "gemini-2.5-flash"
+      - key: GOOGLE_API_KEY
+        sync: false     # ← Set this manually in Render dashboard (keep it secret)
