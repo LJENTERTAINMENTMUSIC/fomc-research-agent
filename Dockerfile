@@ -15,26 +15,44 @@ COPY pyproject.toml uv.lock* ./
 COPY fomc_research/ fomc_research/
 
 # Install production dependencies + serve extras (fastapi, uvicorn)
-# Skip agent-engine extras (not needed for alternative deployment)
-RUN uv sync --no-dev --frozen --extra serve 2>/dev/null || \
-    uv sync --no-dev --extra serve
-
-# ---- Stage 2: Runtime ----
-FROM python:3.11-slim
+# FOMC Research Agent - Multi-platform Docker image
+FROM python:3.11-slim AS builder
 
 WORKDIR /app
 
-# Install curl for healthchecks
-RUN apt-get update && apt-get install -y --no-install-recommends curl && \
-    rm -rf /var/lib/apt/lists/*
+RUN pip install --no-cache-dir uv
 
-# Copy virtual environment from builder
+# Hatchling requires README.md during package build
+COPY pyproject.toml uv.lock* README.md ./
+COPY fomc_research/ fomc_research/
+COPY deployment/ deployment/
+
+RUN uv sync --no-dev --frozen --extra serve
+
+# FOMC Research Agent - Multi-platform Docker image
+FROM python:3.11-slim AS builder
+WORKDIR /app
+RUN pip install --no-cache-dir uv
+COPY pyproject.toml uv.lock* README.md ./
+COPY fomc_research/ fomc_research/
+COPY deployment/ deployment/
+RUN uv sync --no-dev --frozen --extra serve
+
+FROM python:3.11-slim
+WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
 COPY --from=builder /app/.venv /app/.venv
-
-# Copy application code
 COPY . .
+ENV PATH="/app/.venv/bin:$PATH"
+ENV PYTHONUNBUFFERED=1
+ENV PORT=8080
+EXPOSE 8080
+CMD ["python", "deployment/serve_cloudrun.py"]
+ENV PORT=8080
 
-# Add venv to PATH
+EXPOSE 8080
+
+CMD ["python", "deployment/serve_cloudrun.py"]
 ENV PATH="/app/.venv/bin:$PATH"
 ENV PYTHONUNBUFFERED=1
 ENV PORT=8080
